@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { authAPI } from '../api';
 import './Login.css';
 
@@ -52,12 +53,14 @@ function Login({ onLogin }) {
           <button
             className={`tab ${isLogin ? 'active' : ''}`}
             onClick={() => setIsLogin(true)}
+            type="button"
           >
             Login
           </button>
           <button
             className={`tab ${!isLogin ? 'active' : ''}`}
             onClick={() => setIsLogin(false)}
+            type="button"
           >
             Register
           </button>
@@ -120,7 +123,8 @@ function Login({ onLogin }) {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <label>Password</label>
               {isLogin && (
-                <a href="#" className="forgot-link">Forgot Password?</a>
+                // use Link for navigation to a real route instead of an anchor with href="#"
+                <Link to="/forgot-password" className="forgot-link">Forgot Password?</Link>
               )}
             </div>
             <input
@@ -154,16 +158,26 @@ function Login({ onLogin }) {
           {isLogin ? (
             <>
               Don't have an account?{' '}
-              <a href="#" onClick={(e) => { e.preventDefault(); setIsLogin(false); }}>
+              <button
+                type="button"
+                className="link-like"
+                onClick={() => setIsLogin(false)}
+                aria-label="Register"
+              >
                 Register
-              </a>
+              </button>
             </>
           ) : (
             <>
               Already have an account?{' '}
-              <a href="#" onClick={(e) => { e.preventDefault(); setIsLogin(true); }}>
+              <button
+                type="button"
+                className="link-like"
+                onClick={() => setIsLogin(true)}
+                aria-label="Sign in"
+              >
                 Sign in
-              </a>
+              </button>
             </>
           )}
         </div>
@@ -173,5 +187,3 @@ function Login({ onLogin }) {
 }
 
 export default Login;
-
-

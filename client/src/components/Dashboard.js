@@ -6,7 +6,6 @@ import './Dashboard.css';
 
 function Dashboard({ user, onLogout }) {
   const [stats, setStats] = useState({ totalHours: 0, avgPerDay: 0, entries: 0 });
-  const [forecast, setForecast] = useState(null);
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -23,7 +22,6 @@ function Dashboard({ user, onLogout }) {
       ]);
 
       setStats(statsRes.data);
-      setForecast(forecastRes.data);
       
       // Prepare chart data - separate history and forecast
       const historyData = logsRes.data.map(log => ({
@@ -34,11 +32,11 @@ function Dashboard({ user, onLogout }) {
         type: 'history'
       })).sort((a, b) => new Date(a.date) - new Date(b.date));
 
-      const forecastData = forecastRes.data.forecast.map(f => ({
+      const forecastData = (forecastRes.data.forecast || []).map(f => ({
         date: f.date,
         hours: f.hours,
-        min: f.range.min,
-        max: f.range.max,
+        min: f.range?.min ?? null,
+        max: f.range?.max ?? null,
         type: 'forecast'
       }));
 
@@ -175,5 +173,3 @@ function Dashboard({ user, onLogout }) {
 }
 
 export default Dashboard;
-
-

@@ -5,10 +5,13 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 const app = express();
-const PORT = 4000;
-const JWT_SECRET = 'your-secret-key-change-in-production';
 
-app.use(cors());
+// Use environment variables (with safe defaults)
+const PORT = process.env.PORT || 4000;
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+const CLIENT_URL = process.env.CLIENT_URL || '*';
+
+app.use(cors({ origin: CLIENT_URL }));
 app.use(bodyParser.json());
 
 // In-memory storage (replace with database in production)
@@ -18,8 +21,6 @@ let userProfiles = [];
 
 // Simple prediction model
 function predictCodingHours(hobby_top1, club_top1, reads_books) {
-  // Simple linear model based on features
-  // These weights can be trained with actual data
   const baseHours = 1.0;
   const hobbyWeight = hobby_top1 === 'coding' || hobby_top1 === 'programming' ? 0.5 : 0.2;
   const clubWeight = club_top1 === 'coding' || club_top1 === 'tech' ? 0.3 : 0.1;
@@ -36,7 +37,6 @@ function generateForecast(userId, historyPoints) {
   const { hobby_top1, club_top1, reads_books } = userProfile;
   const basePrediction = predictCodingHours(hobby_top1, club_top1, reads_books);
   
-  // Use historical average if available
   const userLogs = logs.filter(l => l.userId === userId);
   const avgHours = userLogs.length > 0 
     ? userLogs.reduce((sum, log) => sum + log.duration, 0) / userLogs.length 
@@ -49,7 +49,6 @@ function generateForecast(userId, historyPoints) {
     const date = new Date(today);
     date.setDate(today.getDate() + i);
     
-    // Add some variation based on day of week
     const dayOfWeek = date.getDay();
     const variation = dayOfWeek === 0 || dayOfWeek === 6 ? -0.1 : 0.1;
     
@@ -84,6 +83,11 @@ function authenticateToken(req, res, next) {
     next();
   });
 }
+
+// Health route (useful for Render / monitoring)
+app.get('/health', (req, res) => {
+  res.json({ ok: true, time: Date.now() });
+});
 
 // Routes
 
@@ -261,7 +265,5 @@ app.post('/api/import', authenticateToken, (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Server running on port ${PORT} (client allowed: ${CLIENT_URL})`);
 });
-
-

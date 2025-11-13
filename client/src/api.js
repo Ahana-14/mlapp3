@@ -1,9 +1,11 @@
+// client/src/api.js
 import axios from 'axios';
 
-const API_URL = 'http://localhost:4000/api';
-
+// IMPORTANT: REACT_APP_API_URL should be set in Vercel to your Render URL (no trailing '/api')
+// e.g. REACT_APP_API_URL=https://mlapp-ok49.onrender.com
+const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:4000';
 const api = axios.create({
-  baseURL: API_URL,
+  baseURL: `${API_BASE}/api`,
 });
 
 // Add token to requests
@@ -17,7 +19,7 @@ api.interceptors.request.use((config) => {
 
 export const authAPI = {
   login: (email, password) => api.post('/login', { email, password }),
-  register: (email, password, hobby_top1, club_top1, reads_books) => 
+  register: (email, password, hobby_top1, club_top1, reads_books) =>
     api.post('/register', { email, password, hobby_top1, club_top1, reads_books }),
 };
 
@@ -37,5 +39,3 @@ export const forecastAPI = {
 };
 
 export default api;
-
-
